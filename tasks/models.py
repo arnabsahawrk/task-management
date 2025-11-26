@@ -6,6 +6,9 @@ class Employee(models.Model):
     email = models.EmailField(unique=True)
     # task_set -> for foreignKey it set '.._set' something like that
 
+    def __str__(self) -> str:
+        return self.name
+
 
 # Create your models here.
 class Task(models.Model):
