@@ -1,9 +1,18 @@
 # from django.http import HttpResponse
+# from datetime import date
+
+# from turtle import title
+
+
+from django.db.models import Count
+
+# from django.db.models import Q
 from django.shortcuts import render
 
-# from tasks.forms import TaskForm
-# from tasks.models import Employee, Task
 from tasks.forms import TaskModelForm
+
+# from tasks.forms import TaskForm
+from tasks.models import Project
 
 
 # Create your views here.
@@ -58,3 +67,47 @@ def create_task(request):
 
     context = {"form": form}
     return render(request, "task-form.html", context=context)
+
+
+def view_task(request):
+    # retrieve all data from database
+    # tasks = Task.objects.all()
+
+    # show the first data
+    # task = Task.objects.first()
+
+    # show the data id with 1
+    # task = Task.objects.get(id=1)  // it raises error if the data doesn't exist and if there are multiple data
+
+    # show the data that are in pending
+    # tasks = Task.objects.filter(status="PENDING")
+
+    # show the data which due_date is today
+    # tasks = Task.objects.filter(due_date=date.today())
+
+    # Show the tasks which priority is not low meaning only high and medium
+    # tasks = TaskDetail.objects.exclude(priority="L")
+
+    # show the tasks that contain word 'economic'
+    # tasks = Task.objects.filter(title__icontains="economic")
+
+    # show the tasks that are pending or in_progress
+    # tasks = Task.objects.filter(Q(status="PENDING") | Q(status="IN_PROGRESS"))
+
+    # select_related(foreign_key, one_to_one_field)
+    """tasks = Task.objects.select_related("detail").all()
+    tasks = TaskDetail.objects.select_related("task").all()
+    Both way because of one_to_one_field relation
+    """
+    # tasks = Task.objects.select_related( "project").all()  - it can be used in one side because foreign_key relation
+
+    # prefetch_related(reverse foreign_key, many_to_many_field)
+    # projects = Project.objects.prefetch_related("task_set").all() - foreign key relation example
+
+    # employees = Employee.objects.prefetch_related("task_set").all() - many to many relationship
+
+    # Aggregation func
+    # total_tasks = Task.objects.aggregate(total_tasks=Count("id"))
+
+    projects = Project.objects.annotate(cnt=Count("task")).order_by("cnt")
+    return render(request, "show-task.html", {"projects": projects})
