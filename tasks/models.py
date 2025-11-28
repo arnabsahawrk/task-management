@@ -1,6 +1,7 @@
 from django.db import models
 
 
+# Create your models here.
 class Employee(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
@@ -10,7 +11,6 @@ class Employee(models.Model):
         return self.name
 
 
-# Create your models here.
 class Task(models.Model):
     STATUS_CHOICES = [
         ("PENDING", "Pending"),
@@ -50,6 +50,7 @@ class Project(models.Model):
     name = models.CharField(max_length=250)
     description = models.TextField(blank=True, null=True)
     start_date = models.DateField()
+    assigned_to = models.ManyToManyField(Employee)
 
     def __str__(self):
         return self.name
