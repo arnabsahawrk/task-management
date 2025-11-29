@@ -1,6 +1,9 @@
+from typing import TYPE_CHECKING, Optional
+
 from django.db import models
 
 
+# Create your models here.
 class Employee(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
@@ -10,7 +13,6 @@ class Employee(models.Model):
         return self.name
 
 
-# Create your models here.
 class Task(models.Model):
     STATUS_CHOICES = [
         ("PENDING", "Pending"),
@@ -28,6 +30,11 @@ class Task(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     # taskdetail -> this name is auto set, can change the name via "related_name='details'"
 
+    if TYPE_CHECKING:  # Pylance fix
+        from .models import TaskDetail
+
+        detail: Optional["TaskDetail"]
+
     def __str__(self) -> str:
         return self.title
 
@@ -38,7 +45,6 @@ class TaskDetail(models.Model):
 
     # std_id = models.CharField(max_length=200, primary_key=True)
     task = models.OneToOneField(Task, on_delete=models.CASCADE, related_name="detail")
-    assigned_to = models.CharField(max_length=100)
     priority = models.CharField(max_length=1, choices=PRIORITY_OPTIONS, default=LOW)
     notes = models.TextField(blank=True, null=True)
 
@@ -50,6 +56,7 @@ class Project(models.Model):
     name = models.CharField(max_length=250)
     description = models.TextField(blank=True, null=True)
     start_date = models.DateField()
+    assigned_to = models.ManyToManyField(Employee)
 
     def __str__(self):
         return self.name

@@ -16,22 +16,23 @@ def populate_db():
     # Initialize Faker
     fake = Faker()
 
-    # Create Projects
-    projects = [
-        Project.objects.create(
-            name=fake.bs().capitalize(),
-            description=fake.paragraph(),
-            start_date=fake.date_this_year(),
-        )
-        for _ in range(5)
-    ]
-    print(f"Created {len(projects)} projects.")
-
     # Create Employees
     employees = [
         Employee.objects.create(name=fake.name(), email=fake.email()) for _ in range(10)
     ]
     print(f"Created {len(employees)} employees.")
+
+    # Create Projects
+    projects = []
+    for _ in range(7):
+        project = Project.objects.create(
+            name=fake.bs().capitalize(),
+            description=fake.paragraph(),
+            start_date=fake.date_this_year(),
+        )
+        project.assigned_to.set(random.sample(employees, random.randint(1, 5)))
+        projects.append(project)
+    print(f"Created {len(projects)} projects.")
 
     # Create Tasks
     tasks = []
@@ -52,7 +53,6 @@ def populate_db():
     for task in tasks:
         TaskDetail.objects.create(
             task=task,
-            assigned_to=", ".join([emp.name for emp in task.assigned_to.all()]),
             priority=random.choice(["H", "M", "L"]),
             notes=fake.paragraph(),
         )
