@@ -1,6 +1,8 @@
+from typing import TYPE_CHECKING
+
 from django import forms
 
-from tasks.models import Task
+from tasks.models import Task, TaskDetail
 
 
 # Django Form
@@ -22,6 +24,8 @@ class TaskForm(forms.Form):
 
 
 class StyledFormMixin:
+    if TYPE_CHECKING:
+        fields: dict[str, forms.Field]  # type hint for Pylance
     """Mixing to apply style to form field"""
 
     default_classes = "border-2 border-gray-300 w-full p-3 rounded-lg shadow-sm focus:outline-none focus:border-rose-500 focus-ring-rose-500"
@@ -32,14 +36,14 @@ class StyledFormMixin:
                 field.widget.attrs.update(
                     {
                         "class": self.default_classes,
-                        "placeholder": f"Enter {field.label.lower()}",
+                        "placeholder": f"Enter {field.label}",
                     }
                 )
             elif isinstance(field.widget, forms.Textarea):
                 field.widget.attrs.update(
                     {
                         "class": self.default_classes,
-                        "placeholder": f"Enter {field.label.lower()}",
+                        "placeholder": f"Enter {field.label}",
                         "rows": 5,
                     }
                 )
@@ -82,6 +86,17 @@ class TaskModelForm(StyledFormMixin, forms.ModelForm):
             "due_date": forms.SelectDateWidget,
             "assigned_to": forms.CheckboxSelectMultiple,
         }"""
+
+    # Widget using mixins
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.apply_styled_widgets()
+
+
+class TaskDetailModelForm(StyledFormMixin, forms.ModelForm):
+    class Meta:
+        model = TaskDetail
+        fields = ["priority", "notes"]
 
     # Widget using mixins
     def __init__(self, *args, **kwargs):

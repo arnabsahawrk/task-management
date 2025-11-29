@@ -53,7 +53,6 @@ def populate_db():
     for task in tasks:
         TaskDetail.objects.create(
             task=task,
-            assigned_to=", ".join([emp.name for emp in task.assigned_to.all()]),
             priority=random.choice(["H", "M", "L"]),
             notes=fake.paragraph(),
         )

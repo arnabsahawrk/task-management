@@ -9,9 +9,11 @@
     <link rel="stylesheet" href="{% static 'css/output.css' %}" />
   </head>
   <body>
-    <div class="w-1/2 mx-auto mt-8">
-      {% if message %}
-        <p>{{ message }}</p>
+    <div class="w-1/2 mx-auto mt-8 py-3">
+      {% if messages %}
+        {% for message in messages %}
+          <p class="px-2 py-1 {% if message.tags == 'success' %}bg-green-500 text-white{% endif %}">{{ message }}</p>
+        {% endfor %}
       {% endif %}
       <form method="post">
         {% csrf_token %}
@@ -20,7 +22,8 @@
         <label for="">Number</label>
         <input type="number" name="number" /> {% endcomment %}
 
-        {{ form.as_p }}
+        {{ task_form }}
+        {{ task_detail_form }}
         <button type="submit" class="bg-rose-600 px-3 py-2 text-white mt-2 rounded-md">Submit</button>
       </form>
     </div>
