@@ -24,37 +24,103 @@ class TaskForm(forms.Form):
 
 
 class StyledFormMixin:
-    if TYPE_CHECKING:
-        fields: dict[str, forms.Field]  # type hint for Pylance
-    """Mixing to apply style to form field"""
+    """
+    A reusable mixin that applies modern Tailwind styling
+    to all Django form fields automatically.
+    """
 
-    default_classes = "border-2 border-gray-300 w-full p-3 rounded-lg shadow-sm focus:outline-none focus:border-rose-500 focus-ring-rose-500"
+    if TYPE_CHECKING:
+        fields: dict[str, forms.Field]
+
+    # Base styles applied to most inputs
+    base_input_classes = (
+        "w-full px-4 py-3 rounded-xl border-2 border-gray-300 "
+        "bg-white shadow-sm transition duration-200 "
+        "focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
+    )
+
+    textarea_classes = (
+        "w-full px-4 py-3 rounded-xl border-2 border-gray-300 "
+        "bg-white shadow-sm resize-none transition duration-200 "
+        "focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
+    )
+
+    select_classes = (
+        "w-full px-4 py-3 rounded-xl border-2 border-gray-300 "
+        "bg-white shadow-sm transition duration-200 "
+        "focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
+    )
+
+    checkbox_group_classes = "space-y-3"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.apply_styled_widgets()
 
     def apply_styled_widgets(self):
-        for field_name, field in self.fields.items():
-            if isinstance(field.widget, forms.TextInput):
-                field.widget.attrs.update(
+        for name, field in self.fields.items():
+            widget = field.widget
+            label = field.label or name.replace("_", " ").title()
+
+            # Text-like fields
+            if isinstance(
+                widget,
+                (
+                    forms.TextInput,
+                    forms.EmailInput,
+                    forms.PasswordInput,
+                    forms.NumberInput,
+                ),
+            ):
+                widget.attrs.update(
                     {
-                        "class": self.default_classes,
-                        "placeholder": f"Enter {field.label}",
+                        "class": self.base_input_classes,
+                        "placeholder": f"Enter {label}",
                     }
                 )
-            elif isinstance(field.widget, forms.Textarea):
-                field.widget.attrs.update(
+
+            # Textarea
+            elif isinstance(widget, forms.Textarea):
+                widget.attrs.update(
                     {
-                        "class": self.default_classes,
-                        "placeholder": f"Enter {field.label}",
+                        "class": self.textarea_classes,
+                        "placeholder": f"Enter {label}",
                         "rows": 5,
                     }
                 )
-            elif isinstance(field.widget, forms.SelectDateWidget):
-                field.widget.attrs.update(
+
+            # Dropdowns, Select, Date widgets
+            elif isinstance(
+                widget,
+                (
+                    forms.Select,
+                    forms.SelectDateWidget,
+                    forms.DateInput,
+                    forms.TimeInput,
+                ),
+            ):
+                widget.attrs.update(
                     {
-                        "class": "border-2 border-gray-300 p-3 rounded-lg shadow-sm focus:outline-none focus:border-rose-500 focus:ring-rose-500"
+                        "class": self.select_classes,
                     }
                 )
-            elif isinstance(field.widget, forms.CheckboxSelectMultiple):
-                field.widget.attrs.update({"class": "space-y-2"})
+
+            # Checkboxes (Multiple)
+            elif isinstance(widget, forms.CheckboxSelectMultiple):
+                widget.attrs.update({"class": self.checkbox_group_classes})
+
+            # Single Checkbox
+            elif isinstance(widget, forms.CheckboxInput):
+                widget.attrs.update(
+                    {
+                        "class": "h-5 w-5 text-rose-600 focus:ring-rose-500 "
+                        "rounded-md border-gray-300"
+                    }
+                )
+
+            # Fallback for unknown widgets
+            else:
+                widget.attrs.update({"class": self.base_input_classes})
 
 
 # Django Model Form
@@ -88,9 +154,9 @@ class TaskModelForm(StyledFormMixin, forms.ModelForm):
         }"""
 
     # Widget using mixins
-    def __init__(self, *args, **kwargs):
+    """def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.apply_styled_widgets()
+        self.apply_styled_widgets()"""
 
 
 class TaskDetailModelForm(StyledFormMixin, forms.ModelForm):
@@ -99,6 +165,6 @@ class TaskDetailModelForm(StyledFormMixin, forms.ModelForm):
         fields = ["priority", "notes"]
 
     # Widget using mixins
-    def __init__(self, *args, **kwargs):
+    """def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.apply_styled_widgets()
+        self.apply_styled_widgets()"""
