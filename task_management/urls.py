@@ -20,7 +20,8 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    # path("/")
     path("admin/", admin.site.urls),
+    path("", include("core.urls")),
     path("tasks/", include("tasks.urls")),
+    path("users/", include("users.urls")),
 ] + debug_toolbar_urls()
