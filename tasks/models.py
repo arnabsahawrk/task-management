@@ -1,4 +1,8 @@
 from typing import TYPE_CHECKING, Optional
+from django.db.models.signals import m2m_changed
+from django.dispatch import receiver
+from django.core.mail import send_mail
+
 
 from django.db import models
 
@@ -60,3 +64,38 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
+
+
+""" @receiver(post_save, sender=Task)
+def notify_task_creation(sender, instance, created, **kwargs):
+    print("sender ", sender)
+    print("instance ", instance)
+    print(kwargs)
+    print(created)
+
+    if created:
+        instance.is_completed = True
+        instance.save() """
+
+
+""" @receiver(pre_save, sender=Task)
+def notify_task_creation(sender, instance, **kwargs):
+    print("sender ", sender)
+    print("instance ", instance)
+    print(kwargs)
+
+    instance.is_completed = True """
+
+
+@receiver(m2m_changed, sender=Task)
+def notify_task_creation(sender, instance, created, **kwargs):
+    if created:
+        assigned_emails = [emp.email for emp in instance.assigned_to.all()]
+
+        send_mail(
+            "New Task Assigned",
+            f"You have been assigned to the task: {instance.title}",
+            "arnabsaha5199@gmail.com",
+            assigned_emails,
+            # fail_silently=False,
+        )
