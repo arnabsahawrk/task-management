@@ -2,10 +2,14 @@ from django.shortcuts import redirect, render
 
 from users.forms import CustomRegistrationForm
 from django.contrib.auth import login, authenticate, logout
+from django.contrib import messages
 
 
 # Create your views here.
 def sign_up(request):
+    if request.user.is_authenticated:
+        return redirect("home")
+
     if request.method == "GET":
         form = CustomRegistrationForm()
     elif request.method == "POST":
@@ -17,7 +21,17 @@ def sign_up(request):
 
             # if password == confirm_password:
             #     User.objects.create(username=username, password=password)
+
+            user = form.save(commit=False)
+            print("User", user)
+            user.set_password(form.cleaned_data.get("password"))
+            print(form.cleaned_data)
+            user.is_active = False
             form.save()
+            messages.success(
+                request, "A activation mail has sent. Please check your mail."
+            )
+            return redirect("sign-in")
         else:
             print("Password are not same")
 
