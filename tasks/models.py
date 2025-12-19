@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, Optional
-from django.db.models.signals import m2m_changed
+from django.db.models.signals import m2m_changed, post_delete
 from django.dispatch import receiver
 from django.core.mail import send_mail
 
@@ -48,7 +48,9 @@ class TaskDetail(models.Model):
     PRIORITY_OPTIONS = ((HIGH, "High"), (MEDIUM, "Medium"), (LOW, "Low"))
 
     # std_id = models.CharField(max_length=200, primary_key=True)
-    task = models.OneToOneField(Task, on_delete=models.CASCADE, related_name="detail")
+    task = models.OneToOneField(
+        Task, on_delete=models.DO_NOTHING, related_name="detail"
+    )
     priority = models.CharField(max_length=1, choices=PRIORITY_OPTIONS, default=LOW)
     notes = models.TextField(blank=True, null=True)
 
@@ -87,9 +89,9 @@ def notify_task_creation(sender, instance, **kwargs):
     instance.is_completed = True """
 
 
-@receiver(m2m_changed, sender=Task)
-def notify_task_creation(sender, instance, created, **kwargs):
-    if created:
+@receiver(m2m_changed, sender=Task.assigned_to.through)
+def notify_employees_on_task_creation(sender, instance, action, **kwargs):
+    if action == "post_add":
         assigned_emails = [emp.email for emp in instance.assigned_to.all()]
 
         send_mail(
@@ -99,3 +101,12 @@ def notify_task_creation(sender, instance, created, **kwargs):
             assigned_emails,
             # fail_silently=False,
         )
+
+
+@receiver(post_delete, sender=Task)
+def delete_associate_details(sender, instance, **kwargs):
+    if instance.detail:
+        print(isinstance)
+        instance.detail.delete()
+
+        print("Deleted successfully")
