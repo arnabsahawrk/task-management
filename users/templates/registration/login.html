@@ -1,18 +1,45 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Register</title>
+    <title>Log In</title>
+    <link rel="stylesheet" href="{% static 'css/output.css' %}" />
   </head>
   <body>
     <h1 class="text-center font-bold text-2xl">Welcome to Authentication System</h1>
     <div class="md:w-1/2 mx-auto">
+      {% if messages %}
+        {% for message in messages %}
+          <p class="px-2 py-1 {% if message.tags == 'success' %}bg-green-500 text-white{% endif %}">{{ message }}</p>
+        {% endfor %}
+      {% endif %}
       <form action="" method="post">
         {% csrf_token %}
-        <input name="username" type="text" placeholder="enter your username" />
-        <input name="password" type="password" placeholder="enter your password" />
-        <button type="submit">Submit</button>
+        {% for field in form %}
+          <div>
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+              <ul>
+                {% for error in field.errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+        {% endfor %}
+
+        {% if form.non_field_errors %}
+          <div>
+            {% for error in form.non_field_errors %}
+              <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+        <button class="bg-red-400 p-2 rounded my-3 text-white font-medium" type="submit">Submit</button>
       </form>
     </div>
   </body>

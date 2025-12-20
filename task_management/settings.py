@@ -97,8 +97,8 @@ WSGI_APPLICATION = "task_management.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("DB_USER"),
-        "USER": config("DB_NAME"),
+        "NAME": config("DB_NAME"),
+        "USER": config("DB_USER"),
         "PASSWORD": config("DB_PASSWORD"),
         "HOST": config("DB_HOST"),
         "PORT": config("DB_PORT"),
@@ -158,3 +158,6 @@ EMAIL_PORT = config("EMAIL_PORT")
 EMAIL_USE_TLS = config("EMAIL_USE_TLS")
 EMAIL_HOST_USER = config("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+
+
+FRONTEND_URL = config("FRONTEND_URL")
