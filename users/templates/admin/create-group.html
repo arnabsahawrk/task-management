@@ -1,0 +1,16 @@
+{% extends 'admin/dashboard.html' %}
+
+{% block content %}
+  <div class="md:w-1/2 mx-auto mt-4">
+    {% if messages %}
+      {% for message in messages %}
+        <p class="px-2 py-1 {% if message.tags == 'success' %}bg-green-500 text-white{% endif %}">{{ message }}</p>
+      {% endfor %}
+    {% endif %}
+    <form method="post">
+      {% csrf_token %}
+      {{ form }}
+      <button type="submit" class="bg-red-400 p-2 rounded my-3 text-white font-medium">Create Group</button>
+    </form>
+  </div>
+{% endblock %}

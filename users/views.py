@@ -1,11 +1,16 @@
 from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 
-from users.forms import CustomRegistrationForm, LoginForm
+from users.forms import (
+    AssignRoleForm,
+    CustomRegistrationForm,
+    LoginForm,
+    CreateGroupForm,
+)
 from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 # from django.contrib.auth.forms import AuthenticationForm
 
@@ -82,3 +87,51 @@ def activate_user(request, user_id, token):
             return HttpResponse("Invalid Id or Token")
     except User.DoesNotExist:
         return HttpResponse("User not found")
+
+
+def admin_dashboard(request):
+    users = User.objects.all()
+    return render(request, "admin/dashboard.html", {"users": users})
+
+
+def assign_role(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+
+    if request.method == "POST":
+        form = AssignRoleForm(request.POST)
+        if form.is_valid():
+            role = form.cleaned_data["role"]
+            user.groups.clear()
+            user.groups.add(role)
+
+            messages.success(
+                request,
+                f"User {user.username} has been assigned to the {role.name} role",
+            )
+            return redirect("admin-dashboard")
+
+    else:
+        form = AssignRoleForm()
+
+    return render(request, "admin/assign-role.html", {"form": form})
+
+
+def create_group(request):
+    if request.method == "POST":
+        form = CreateGroupForm(request.POST)
+
+        if form.is_valid():
+            group = form.save()
+            messages.success(
+                request, f"Group {group.name} has been created successfully"
+            )
+            return redirect("create-group")
+    else:
+        form = CreateGroupForm()
+
+    return render(request, "admin/create-group.html", {"form": form})
+
+
+def group_list(request):
+    groups = Group.objects.all()
+    return render(request, "admin/group-list.html", {"groups": groups})
