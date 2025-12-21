@@ -15,12 +15,12 @@
         {% for user in users %}
           <tr class="hover:bg-gray-50">
             <td class="px-4 py-4 whitespace-nowrap">{{ forloop.counter }}</td>
-            <td class="px-4 py-4 whitespace-nowrap">{{ user.first_name }} {{ user.last_name }}</td>
-            <td class="px-4 py-4 whitespace-nowrap">{{ user.email }}</td>
-            <td class="px-4 py-4 whitespace-nowrap">{{ user.id }}</td>
-            <td class="px-4 py-4 whitespace-nowrap">{{ user.groups.first.name|default:'No Group Assigned' }}</td>
+            <td class="px-4 py-4 whitespace-nowrap">{{ user.user.first_name }} {{ user.user.last_name }}</td>
+            <td class="px-4 py-4 whitespace-nowrap">{{ user.user.email }}</td>
+            <td class="px-4 py-4 whitespace-nowrap">{{ user.user.id }}</td>
+            <td class="px-4 py-4 whitespace-nowrap">{{ user.group_name }}</td>
             <td class="px-4 py-4 whitespace-nowrap">
-              <a href="{% url 'assign-role' user.id %}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Change Role</a>
+              <a href="{% url 'assign-role' user.user.id %}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Change Role</a>
             </td>
           </tr>
         {% endfor %}

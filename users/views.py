@@ -11,11 +11,17 @@ from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import User, Group
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db.models import Prefetch
 
-# from django.contrib.auth.forms import AuthenticationForm
+
+def is_admin(user):
+    if not user.is_authenticated:
+        return False
+
+    return user.groups.filter(name="Admin").exists()
 
 
-# Create your views here.
 def sign_up(request):
     if request.user.is_authenticated:
         return redirect("home")
@@ -68,6 +74,7 @@ def sign_in(request):
     return render(request, "registration/login.html", {"form": form})
 
 
+@login_required
 def sign_out(request):
     if request.method == "POST":
         logout(request)
@@ -89,11 +96,26 @@ def activate_user(request, user_id, token):
         return HttpResponse("User not found")
 
 
+@user_passes_test(is_admin, login_url="no-permission")
 def admin_dashboard(request):
-    users = User.objects.all()
-    return render(request, "admin/dashboard.html", {"users": users})
+    users = User.objects.prefetch_related(
+        Prefetch("groups", queryset=Group.objects.all(), to_attr="all_groups")
+    ).all()
+
+    user_data = [
+        {
+            "user": user,
+            "group_name": (
+                user.all_groups[0].name if user.all_groups else "No Groups Assigned"  # type: ignore
+            ),
+        }
+        for user in users
+    ]
+
+    return render(request, "admin/dashboard.html", {"users": user_data})
 
 
+@user_passes_test(is_admin, login_url="no-permission")
 def assign_role(request, user_id):
     user = get_object_or_404(User, id=user_id)
 
@@ -116,6 +138,7 @@ def assign_role(request, user_id):
     return render(request, "admin/assign-role.html", {"form": form})
 
 
+@user_passes_test(is_admin, login_url="no-permission")
 def create_group(request):
     if request.method == "POST":
         form = CreateGroupForm(request.POST)
@@ -132,6 +155,7 @@ def create_group(request):
     return render(request, "admin/create-group.html", {"form": form})
 
 
+@user_passes_test(is_admin, login_url="no-permission")
 def group_list(request):
-    groups = Group.objects.all()
+    groups = Group.objects.prefetch_related("permissions").all()
     return render(request, "admin/group-list.html", {"groups": groups})
