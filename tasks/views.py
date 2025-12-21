@@ -6,9 +6,28 @@ from django.shortcuts import redirect, render
 
 from tasks.forms import TaskDetailModelForm, TaskModelForm
 from tasks.models import Project, Task
+from django.contrib.auth.decorators import (
+    user_passes_test,
+    login_required,
+    permission_required,
+)
 
 
-# Create your views here.
+def is_manager(user):
+    if not user.is_authenticated:
+        return False
+
+    return user.groups.filter(name="Manager").exists()
+
+
+def is_employee(user):
+    if not user.is_authenticated:
+        return False
+
+    return user.groups.filter(name="Employee").exists()
+
+
+@user_passes_test(is_manager, login_url="no-permission")
 def manager_dashboard(request):
 
     # getting task count
@@ -42,10 +61,13 @@ def manager_dashboard(request):
     return render(request, "dashboard/manager-dashboard.html", context)
 
 
-def user_dashboard(request):
-    return render(request, "dashboard/user-dashboard.html")
+@user_passes_test(is_employee, login_url="no-permission")
+def employee_dashboard(request):
+    return render(request, "dashboard/employee-dashboard.html")
 
 
+@login_required
+@permission_required("tasks.add_task", raise_exception=True)
 def create_task(request):
     # Django From Data
     """employees = Employee.objects.all()
@@ -98,6 +120,8 @@ def create_task(request):
     return render(request, "task-form.html", context=context)
 
 
+@login_required
+@permission_required("tasks.change_task", raise_exception=True)
 def update_task(request, id):
     task = Task.objects.get(id=id)
 
@@ -121,6 +145,8 @@ def update_task(request, id):
     return render(request, "task-form.html", context=context)
 
 
+@login_required
+@permission_required("tasks.delete_task", raise_exception=True)
 def delete_task(request, id):
     if request.method == "POST":
         task = Task.objects.get(id=id)
@@ -132,6 +158,8 @@ def delete_task(request, id):
         return redirect("manager-dashboard")
 
 
+@login_required
+@permission_required("tasks.view_task", raise_exception=True)
 def view_task(request):
     # retrieve all data from database
     # tasks = Task.objects.all()
