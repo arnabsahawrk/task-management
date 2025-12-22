@@ -1,123 +1,95 @@
-{% load static %}
+{% extends 'base.html' %}
 
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>
-      {% block title %}
+{% block content %}
+  {% comment %}Stats Section{% endcomment %}
+  <section class="py-4 mx-auto px-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-4 xl:gap-6">
+      {% comment %}Total Task{% endcomment %}
+      <a href="{% url 'manager-dashboard' %}?type=all">
+        <div class="bg-white rounded-lg p-6">
+          <h3 class="uppercase font-bold text-gray-400 text-sm">Total Task</h3>
+          <div class="flex justify-between items-center">
+            <div class="space-y-2 mt-3">
+              <p class="font-bold text-2xl">{{ counts.total_tasks }}</p>
+              <p class="text-sm text-gray-400">11 last month</p>
+            </div>
+            <button class="bg-blue-100 size-10 rounded-full flex items-center justify-center hover:bg-blue-700 text-blue-700 hover:text-blue-100 duration-700">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </a>
+      {% comment %}Completed Task{% endcomment %}
+      <a href="{% url 'manager-dashboard' %}?type=completed">
+        <div class="bg-white rounded-lg p-6">
+          <h3 class="uppercase font-bold text-gray-400 text-sm">Completed Task</h3>
+          <div class="flex justify-between items-center">
+            <div class="space-y-2 mt-3">
+              <p class="font-bold text-2xl">{{ counts.completed_tasks }}</p>
+              <p class="text-sm text-gray-400">10 last month</p>
+            </div>
+            <button class="bg-green-200 size-10 rounded-full flex items-center justify-center hover:bg-green-700 text-green-700 hover:text-green-100 duration-700">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </a>
+      {% comment %}Task In Progress{% endcomment %}
+      <a href="{% url 'manager-dashboard' %}?type=in-progress">
+        <div class="bg-white rounded-lg p-6">
+          <h3 class="uppercase font-bold text-gray-400 text-sm">Task In Progress</h3>
+          <div class="flex justify-between items-center">
+            <div class="space-y-2 mt-3">
+              <p class="font-bold text-2xl">{{ counts.in_progress_tasks }}</p>
+              <p class="text-sm text-gray-400">9 last month</p>
+            </div>
+            <button class="bg-yellow-200 size-10 rounded-full flex items-center justify-center hover:bg-yellow-600 text-yellow-600 hover:text-yellow-100 duration-700">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </a>
+      {% comment %}TODOS{% endcomment %}
+      <a href="{% url 'manager-dashboard' %}?type=pending">
+        <div class="bg-white rounded-lg p-6">
+          <h3 class="uppercase font-bold text-gray-400 text-sm">TODOS</h3>
+          <div class="flex justify-between items-center">
+            <div class="space-y-2 mt-3">
+              <p class="font-bold text-2xl">{{ counts.pending_task }}</p>
+              <p class="text-sm text-gray-400">11 last month</p>
+            </div>
+            <button class="bg-purple-200 size-10 rounded-full flex items-center justify-center hover:bg-purple-700 text-purple-700 hover:text-purple-100 duration-700">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </a>
+    </div>
 
-      {% endblock %}
-    </title>
-    <link rel="stylesheet" href="{% static 'css/output.css' %}" />
-  </head>
-  <body class="bg-gray-100 container mx-auto px-4">
-    {% comment %}Header Section{% endcomment %}
-    <header class="flex justify-between items-center py-4 border-b border-gray-300">
-      <h1 class="text-xl md:text-2xl font-bold">Dashboard</h1>
-      <div class="flex items-center gap-3">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="size-6 hover:text-blue-700">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
-        </svg>
-        <button class="bg-blue-700 text-white rounded-full size-9">A</button>
-      </div>
-    </header>
-
-    {% comment %}Main Section{% endcomment %}
-    <main class="py-4">
-      {% comment %}Stats Section{% endcomment %}
-      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-4 xl:gap-6">
-        {% comment %}Total Task{% endcomment %}
-        <a href="{% url 'manager-dashboard' %}?type=all">
-          <div class="bg-white rounded-lg p-6">
-            <h3 class="uppercase font-bold text-gray-400 text-sm">Total Task</h3>
-            <div class="flex justify-between items-center">
-              <div class="space-y-2 mt-3">
-                <p class="font-bold text-2xl">{{ counts.total_tasks }}</p>
-                <p class="text-sm text-gray-400">11 last month</p>
-              </div>
-              <button class="bg-blue-100 size-10 rounded-full flex items-center justify-center hover:bg-blue-700 text-blue-700 hover:text-blue-100 duration-700">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </a>
-        {% comment %}Completed Task{% endcomment %}
-        <a href="{% url 'manager-dashboard' %}?type=completed">
-          <div class="bg-white rounded-lg p-6">
-            <h3 class="uppercase font-bold text-gray-400 text-sm">Completed Task</h3>
-            <div class="flex justify-between items-center">
-              <div class="space-y-2 mt-3">
-                <p class="font-bold text-2xl">{{ counts.completed_tasks }}</p>
-                <p class="text-sm text-gray-400">10 last month</p>
-              </div>
-              <button class="bg-green-200 size-10 rounded-full flex items-center justify-center hover:bg-green-700 text-green-700 hover:text-green-100 duration-700">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </a>
-        {% comment %}Task In Progress{% endcomment %}
-        <a href="{% url 'manager-dashboard' %}?type=in-progress">
-          <div class="bg-white rounded-lg p-6">
-            <h3 class="uppercase font-bold text-gray-400 text-sm">Task In Progress</h3>
-            <div class="flex justify-between items-center">
-              <div class="space-y-2 mt-3">
-                <p class="font-bold text-2xl">{{ counts.in_progress_tasks }}</p>
-                <p class="text-sm text-gray-400">9 last month</p>
-              </div>
-              <button class="bg-yellow-200 size-10 rounded-full flex items-center justify-center hover:bg-yellow-600 text-yellow-600 hover:text-yellow-100 duration-700">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </a>
-        {% comment %}TODOS{% endcomment %}
-        <a href="{% url 'manager-dashboard' %}?type=pending">
-          <div class="bg-white rounded-lg p-6">
-            <h3 class="uppercase font-bold text-gray-400 text-sm">TODOS</h3>
-            <div class="flex justify-between items-center">
-              <div class="space-y-2 mt-3">
-                <p class="font-bold text-2xl">{{ counts.pending_task }}</p>
-                <p class="text-sm text-gray-400">11 last month</p>
-              </div>
-              <button class="bg-purple-200 size-10 rounded-full flex items-center justify-center hover:bg-purple-700 text-purple-700 hover:text-purple-100 duration-700">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </a>
-      </section>
-
-      {% if messages %}
-        {% for message in messages %}
-          <p class="px-2 py-1 {% if message.tags == 'success' %}
-              
+    {% if messages %}
+      {% for message in messages %}
+        <p class="px-2 py-1 {% if message.tags == 'success' %}
+            
               bg-green-500 text-white
 
-            {% elif message.tags == 'error' %}
-              
+          {% elif message.tags == 'error' %}
+            
             bg-red-500 text-white
 
+          {% endif %}">{{ message }}</p>
+      {% endfor %}
+    {% endif %}
 
-            {% endif %}">{{ message }}</p>
-        {% endfor %}
-      {% endif %}
+    {% block tasks %}
 
-      {% block tasks %}
-
-      {% endblock %}
-    </main>
-
-    {% comment %} {% include 'footer.html' %} {% endcomment %}
-  </body>
-</html>
+    {% endblock %}
+  </section>
+{% endblock %}

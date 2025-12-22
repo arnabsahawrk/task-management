@@ -202,3 +202,10 @@ def view_task(request):
 
     projects = Project.objects.annotate(cnt=Count("task")).order_by("cnt")
     return render(request, "show-task.html", {"projects": projects})
+
+
+@login_required
+@permission_required("tasks.view_task", raise_exception=True)
+def task_details(request, task_id):
+    task = Task.objects.select_related("detail").get(id=task_id)
+    return render(request, "show-task-details.html", {"task": task})

@@ -1,17 +1,16 @@
 from typing import TYPE_CHECKING, Optional
-
-
 from django.db import models
+from django.contrib.auth.models import User
 
 
 # Create your models here.
-class Employee(models.Model):
+"""class Employee(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     # task_set -> for foreignKey it set '.._set' something like that
 
     def __str__(self) -> str:
-        return self.name
+        return self.name"""
 
 
 class Task(models.Model):
@@ -21,12 +20,12 @@ class Task(models.Model):
         ("COMPLETED", "Completed"),
     ]
     project = models.ForeignKey("Project", on_delete=models.CASCADE)
-    assigned_to = models.ManyToManyField(Employee)
+    # assigned_to = models.ManyToManyField(Employee)
+    assigned_to = models.ManyToManyField(User, related_name="task")
     title = models.CharField(max_length=250)
     description = models.TextField()
     due_date = models.DateField()
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default="PENDING")
-    is_completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     # taskdetail -> this name is auto set, can change the name via "related_name='details'"
@@ -59,7 +58,7 @@ class Project(models.Model):
     name = models.CharField(max_length=250)
     description = models.TextField(blank=True, null=True)
     start_date = models.DateField()
-    assigned_to = models.ManyToManyField(Employee)
+    # assigned_to = models.ManyToManyField(Employee)
 
     def __str__(self):
         return self.name

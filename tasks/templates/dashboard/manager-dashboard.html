@@ -1,6 +1,6 @@
 {% extends 'dashboard/dashboard.html' %}
 {% block title %}
-  Manger Dashboard
+  <title>Manger Dashboard</title>
 {% endblock %}
 {% block tasks %}
   {% comment %}Task Table{% endcomment %}
@@ -19,12 +19,14 @@
           <div class="flex items-center gap-2">
             <div class="w-2 h-2 bg-green-500 rounded-full"></div>
             <div>
-              <p>{{ task.title }}</p>
-              <a href="{% url 'update-task' task.id %}" class="px-1 py-1 bg-purple-500 rounded-lg text-white">Update</a>
-              <form action="{% url 'delete-task' task.id %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="px-1 py-1 bg-red-500 rounded-lg text-white">Delete</button>
-              </form>
+              <a href="{% url 'task-details' task.id %}" class="block underline text-blue-400">{{ task.title }}</a>
+              <div class="flex gap-2 mt-2">
+                <a href="{% url 'update-task' task.id %}" class="px-1 py-1 bg-purple-500 rounded-lg text-white">Update</a>
+                <form action="{% url 'delete-task' task.id %}" method="post">
+                  {% csrf_token %}
+                  <button type="submit" class="px-1 py-1 bg-red-500 rounded-lg text-white">Delete</button>
+                </form>
+              </div>
             </div>
           </div>
           <div>
@@ -32,8 +34,8 @@
           </div>
           <div>
             <div class="flex -space-x-2">
-              {% for emp in task.assigned_to.all %}
-                <div class="w-8 h-8 rounded-full bg-blue-500 flex justify-center items-center text-sm text-white border-2 border-white uppercase">{{ emp.name|slice:':1' }}</div>
+              {% for user in task.assigned_to.all %}
+                <div class="w-8 h-8 rounded-full bg-blue-500 flex justify-center items-center text-sm text-white border-2 border-white uppercase">{{ user.first_name|slice:':1' }}</div>
               {% endfor %}
               {% comment %} <div class="w-8 h-8 rounded-full bg-blue-500 flex justify-center items-center text-sm text-white border-2 border-white">CA</div>
               <div class="w-8 h-8 rounded-full bg-blue-500 flex justify-center items-center text-sm text-white border-2 border-white">B</div> {% endcomment %}
