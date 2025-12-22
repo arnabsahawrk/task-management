@@ -2,6 +2,7 @@ from django.urls import path
 
 from tasks.views import (
     create_task,
+    dashboard,
     delete_task,
     manager_dashboard,
     update_task,
@@ -18,4 +19,5 @@ urlpatterns = [
     path("task/<int:task_id>/details/", task_details, name="task-details"),
     path("update-task/<int:id>/", update_task, name="update-task"),
     path("delete-task/<int:id>/", delete_task, name="delete-task"),
+    path("dashboard/", dashboard, name="dashboard"),
 ]

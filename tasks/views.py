@@ -12,6 +12,8 @@ from django.contrib.auth.decorators import (
     permission_required,
 )
 
+from users.views import is_admin
+
 
 def is_manager(user):
     if not user.is_authenticated:
@@ -208,4 +210,28 @@ def view_task(request):
 @permission_required("tasks.view_task", raise_exception=True)
 def task_details(request, task_id):
     task = Task.objects.select_related("detail").get(id=task_id)
-    return render(request, "show-task-details.html", {"task": task})
+    status_choices = Task.STATUS_CHOICES
+
+    if request.method == "POST":
+        selected_status = request.POST.get("task_status")
+        task.status = selected_status
+        task.save()
+        return redirect("task-details", task.id)  # type: ignore
+
+    return render(
+        request,
+        "show-task-details.html",
+        {"task": task, "status_choices": status_choices},
+    )
+
+
+@login_required
+def dashboard(request):
+    if is_manager(request.user):
+        redirect("manager-dashboard")
+    elif is_employee(request.user):
+        redirect("user-dashboard")
+    elif is_admin(request.user):
+        return redirect("admin-dashboard")
+
+    return redirect("no-permission")
