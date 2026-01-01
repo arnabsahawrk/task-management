@@ -197,9 +197,38 @@ class CreateTaskView(ContextMixin, LoginRequiredMixin, PermissionRequiredMixin, 
             return render(request, self.template_name, context=context)
 
 
-# TODO
-class CreateTaskCreateView(CreateView):
-    pass
+class CreateTaskCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """CreateView-based implementation for creating a Task with its Detail."""
+
+    permission_required = "tasks.add_task"
+    login_url = "sign-in"
+    model = Task
+    form_class = TaskModelForm
+    template_name = "task-form.html"
+    context_object_name = "task"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["task_form"] = self.get_form()
+        context["task_detail_form"] = TaskDetailModelForm()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        task_form = TaskModelForm(request.POST)
+        task_detail_form = TaskDetailModelForm(request.POST, request.FILES)
+
+        if task_form.is_valid() and task_detail_form.is_valid():
+            task = task_form.save(commit=False)
+            projects = Project.objects.all()
+            task.project = random.choice(projects)
+            task.save()
+
+            task_detail = task_detail_form.save(commit=False)
+            task_detail.task = task
+            task_detail.save()
+
+            messages.success(request, "Task Created Successfully")
+            return redirect("create-task")
 
 
 @login_required
