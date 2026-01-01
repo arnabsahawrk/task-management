@@ -13,6 +13,9 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Prefetch
+from django.contrib.auth.views import LoginView
+from django.views.generic import TemplateView
+from django.contrib.auth.models import AnonymousUser
 
 
 def is_admin(user):
@@ -74,13 +77,20 @@ def sign_in(request):
     return render(request, "registration/login.html", {"form": form})
 
 
+class CustomLoginView(LoginView):
+    form_class = LoginForm
+
+    def get_success_url(self):
+        next_url = self.request.GET.get("next")
+        return next_url or super().get_success_url()
+
+
 @login_required
 def sign_out(request):
-    if request.method == "POST":
-        logout(request)
-        return redirect("sign-in")
-    else:
+    if request.method != "POST":
         return redirect("home")
+    logout(request)
+    return redirect("sign-in")
 
 
 def activate_user(request, user_id, token):
@@ -159,3 +169,20 @@ def create_group(request):
 def group_list(request):
     groups = Group.objects.prefetch_related("permissions").all()
     return render(request, "admin/group-list.html", {"groups": groups})
+
+
+class ProfileView(TemplateView):
+    template_name = "accounts/profile.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        context["username"] = user.username
+        context["email"] = getattr(user, "email", "")
+        context["name"] = (
+            user.get_full_name() if not isinstance(user, AnonymousUser) else ""
+        )
+        context["since"] = getattr(user, "date_joined", "")
+        context["last"] = getattr(user, "last_login", "")
+        return context
