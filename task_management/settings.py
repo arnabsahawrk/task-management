@@ -168,3 +168,4 @@ FRONTEND_URL = config("FRONTEND_URL")
 
 LOGIN_URL = config("LOGIN_URL")
 LOGIN_REDIRECT_URL = "/tasks/dashboard/"
+LOGOUT_REDIRECT_URL = "home"
