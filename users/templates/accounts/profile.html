@@ -15,7 +15,7 @@
         </div>
         <nav class="mt-6">
           <a href="#" class="block py-2 px-4 text-gray-700 bg-gray-200 hover:bg-gray-300">Profile</a>
-          <a href="#" class="block py-2 px-4 text-gray-700 hover:bg-gray-200">Edit Profile</a>
+          <a href="{% url 'edit_profile' %}" class="block py-2 px-4 text-gray-700 hover:bg-gray-200">Edit Profile</a>
           <a href="{% url 'password-change' %}" class="block py-2 px-4 text-gray-700 hover:bg-gray-200">Change Password</a>
         </nav>
       </aside>
@@ -26,9 +26,9 @@
 
         <div class="bg-white shadow-md rounded-lg p-6">
           <div class="flex items-center mb-6">
-            <img src="https://png.pngtree.com/png-clipart/20231019/original/pngtree-user-profile-avatar-png-image_13369988.png" alt="User Avatar" class="w-24 h-24 rounded-full object-cover mr-6" />
+            <img src="{{ user.profile_image.url }}" alt="User Avatar" class="w-24 h-24 rounded-full object-cover mr-6" />
             <div>
-              <h2 class="text-2xl font-semibold text-gray-800">{{ name }}</h2>
+              <h2 class="text-2xl font-semibold text-gray-800">{{ user.get_full_name }}</h2>
               <p class="text-gray-600">Software Developer</p>
             </div>
           </div>
@@ -37,10 +37,10 @@
             <div>
               <h3 class="text-lg font-semibold text-gray-700 mb-2">Personal Information</h3>
               <p class="text-gray-600">
-                <span class="font-medium">Email:</span> {{ email }}
+                <span class="font-medium">Email:</span> {{ user.email }}
               </p>
               <p class="text-gray-600">
-                <span class="font-medium">Username:</span> {{ username }}
+                <span class="font-medium">Username:</span> {{ user.username }}
               </p>
               <p class="text-gray-600">
                 <span class="font-medium">Location:</span> New York, USA
@@ -49,17 +49,17 @@
             <div>
               <h3 class="text-lg font-semibold text-gray-700 mb-2">Account Information</h3>
               <p class="text-gray-600">
-                <span class="font-medium">Member Since:</span> {{ since|date:'F j, Y' }}
+                <span class="font-medium">Member Since:</span> {{ user.date_joined|date:'F j, Y' }}
               </p>
               <p class="text-gray-600">
-                <span class="font-medium">Last Login:</span> {{ last|custom_date_modify }}
+                <span class="font-medium">Last Login:</span> {{ user.last_login|custom_date_modify }}
               </p>
             </div>
           </div>
 
           <div class="mt-6">
             <h3 class="text-lg font-semibold text-gray-700 mb-2">Bio</h3>
-            <p class="text-gray-600">Passionate software developer with 5 years of experience in web technologies. Loves to create user-friendly and efficient applications. In free time, enjoys hiking and reading tech blogs.</p>
+            <p class="text-gray-600">{{ user.bio }}</p>
           </div>
         </div>
       </main>

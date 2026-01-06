@@ -2,6 +2,7 @@ from users.views import (
     CustomLoginView,
     CustomPasswordResetConfirmView,
     CustomPasswordResetView,
+    EditProfileView,
     ProfileView,
     admin_dashboard,
     assign_role,
@@ -49,4 +50,5 @@ urlpatterns = [
         CustomPasswordResetConfirmView.as_view(),
         name="password_reset_confirm",
     ),
+    path("edit-profile/", EditProfileView.as_view(), name="edit_profile"),
 ]

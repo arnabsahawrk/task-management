@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Optional
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 
 
 # Create your models here.
@@ -21,7 +21,7 @@ class Task(models.Model):
     ]
     project = models.ForeignKey("Project", on_delete=models.CASCADE)
     # assigned_to = models.ManyToManyField(Employee)
-    assigned_to = models.ManyToManyField(User, related_name="task")
+    assigned_to = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="task")
     title = models.CharField(max_length=250)
     description = models.TextField()
     due_date = models.DateField()

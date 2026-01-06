@@ -1,5 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User, Group, Permission
+from django.contrib.auth.models import Group, Permission
 from django import forms
 import re
 from tasks.forms import StyledFormMixin
@@ -9,6 +9,11 @@ from django.contrib.auth.forms import (
     PasswordResetForm,
     SetPasswordForm,
 )
+from django.contrib.auth import get_user_model
+
+from users.models import CustomUser
+
+User = get_user_model()
 
 
 class RegisterForm(UserCreationForm):
@@ -35,7 +40,7 @@ class CustomRegistrationForm(StyledFormMixin, forms.ModelForm):
     confirm_password = forms.CharField()
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = [
             "username",
             "first_name",
@@ -126,3 +131,46 @@ class CustomPasswordResetForm(StyledFormMixin, PasswordResetForm):
 
 class CustomPasswordResetConfirmForm(StyledFormMixin, SetPasswordForm):
     pass
+
+
+"""
+class EditUserProfileForm(StyledFormMixin, forms.ModelForm):
+    bio = forms.CharField(required=False, widget=forms.Textarea, label="Bio")
+    profile_image = forms.ImageField(required=False, label="Profile Image")
+
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "email"]
+
+    def __init__(self, *args, **kwargs):
+        self.profile = kwargs.pop("profile", None)
+        super().__init__(*args, **kwargs)
+
+        if self.profile:
+            self.fields["bio"].initial = self.profile.bio
+            self.fields["profile_image"].initial = self.profile.profile_image
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+
+        if commit:
+            user.save()
+
+        if self.profile:
+            self.profile.bio = self.cleaned_data.get("bio")
+
+            image = self.cleaned_data.get("profile_image")
+            if image:
+                self.profile.profile_image = image
+
+            if commit:
+                self.profile.save()
+
+        return user
+"""
+
+
+class EditUserProfileForm(StyledFormMixin, forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ["first_name", "last_name", "email", "bio", "profile_image"]

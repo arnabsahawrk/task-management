@@ -845,10 +845,6 @@ video {
   flex: 1 1 0%;
 }
 
-.flex-grow {
-  flex-grow: 1;
-}
-
 .table-auto {
   table-layout: auto;
 }
