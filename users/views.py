@@ -23,7 +23,14 @@ from django.contrib.auth.views import (
     PasswordResetView,
     PasswordResetConfirmView,
 )
-from django.views.generic import TemplateView, UpdateView
+from django.views.generic import (
+    TemplateView,
+    UpdateView,
+    CreateView,
+    FormView,
+    ListView,
+)
+from django.utils.decorators import method_decorator
 from django.urls import reverse_lazy
 
 from django.contrib.auth import get_user_model
@@ -69,6 +76,28 @@ def sign_up(request):
             print("Password are not same")
 
     return render(request, "registration/register.html", {"form": form})
+
+
+# TODO: Implement sign_up FBV to CBV
+class SignUpView(CreateView):
+    form_class = CustomRegistrationForm
+    template_name = "registration/register.html"
+    success_url = reverse_lazy("sign-in")
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect("home")
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        user = form.save(commit=False)
+        user.set_password(form.cleaned_data.get("password"))
+        user.is_active = False
+        user.save()
+        messages.success(
+            self.request, "A activation mail has sent. Please check your mail."
+        )
+        return redirect(self.get_success_url())
 
 
 def sign_in(request):
@@ -168,6 +197,28 @@ def assign_role(request, user_id):
     return render(request, "admin/assign-role.html", {"form": form})
 
 
+# TODO: Implement assign_role FBV to CBV
+@method_decorator(
+    user_passes_test(is_admin, login_url="no-permission"), name="dispatch"
+)
+class AssignRoleView(FormView):
+    form_class = AssignRoleForm
+    template_name = "admin/assign-role.html"
+    success_url = reverse_lazy("admin-dashboard")
+
+    def form_valid(self, form):
+        user_id = self.kwargs["user_id"]
+        user = get_object_or_404(User, id=user_id)
+        role = form.cleaned_data["role"]
+        user.groups.clear()
+        user.groups.add(role)
+        messages.success(
+            self.request,
+            f"User {user.username} has been assigned to the {role.name} role",
+        )
+        return super().form_valid(form)
+
+
 @user_passes_test(is_admin, login_url="no-permission")
 def create_group(request):
     if request.method == "POST":
@@ -185,10 +236,38 @@ def create_group(request):
     return render(request, "admin/create-group.html", {"form": form})
 
 
+# TODO: Implement create_group FBV to CBV
+@method_decorator(
+    user_passes_test(is_admin, login_url="no-permission"), name="dispatch"
+)
+class CreateGroupView(CreateView):
+    form_class = CreateGroupForm
+    template_name = "admin/create-group.html"
+    success_url = reverse_lazy("create-group")
+
+    def form_valid(self, form):
+        group = form.save()
+        messages.success(
+            self.request, f"Group {group.name} has been created successfully"
+        )
+        return redirect(self.get_success_url())
+
+
 @user_passes_test(is_admin, login_url="no-permission")
 def group_list(request):
     groups = Group.objects.prefetch_related("permissions").all()
     return render(request, "admin/group-list.html", {"groups": groups})
+
+
+# TODO: Implement group_list FBV to CBV
+@method_decorator(
+    user_passes_test(is_admin, login_url="no-permission"), name="dispatch"
+)
+class GroupListView(ListView):
+    model = Group
+    template_name = "admin/group-list.html"
+    context_object_name = "groups"
+    queryset = Group.objects.prefetch_related("permissions").all()
 
 
 class ProfileView(TemplateView):

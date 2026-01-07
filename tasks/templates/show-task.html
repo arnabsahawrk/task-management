@@ -1,46 +1,63 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tasks</title>
-  </head>
-  <body>
-    <div>
-      <ul>
-        {% comment %} {% for emp in employees %}
-          {% endcomment %}
-          {% comment %} <li>{{ task.title }} - {{ task.status }} - {{ task.detail.priority }}</li> {% endcomment %}
-          {% comment %} <li>{{ task.priority }} - {{ task.task.title }} - {{ task.task.status }}</li> {% endcomment %}
-          {% comment %} <li>{{ task.title }} - {{ task.status }} - {{ task.project.name }}</li> {% endcomment %}
+{% extends 'dashboard/dashboard.html' %}
 
-          {% comment %} <li>
-            <u>{{ project.name }}</u>
-            {% for task in project.task_set.all %}
-              <p>{{ task.title }}</p>
-            {% endfor %}
-          </li> {% endcomment %}
+{% block title %}
+  <title>User Dashboard</title>
+{% endblock %}
 
-          {% comment %} <li>
-            <u>{{ emp.name }}</u>
-            {% for task in emp.task_set.all %}
-              <p>{{ task.title }}</p>
-            {% endfor %}
-          </li>
-        {% endfor %} {% endcomment %}
-      </ul>
-
-      {% comment %} <p>{{ total_tasks }}</p> {% endcomment %}
-
-      <ol>
-        {% for project in projects %}
-          <li>
-            <p>
-              <u>Project Name:</u> <span>{{ project.name }}</span>. <u>Total Tasks:</u> {{ project.cnt }}
-            </p>
-          </li>
-        {% endfor %}
-      </ol>
+{% block tasks %}
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+      <h2 class="text-3xl font-bold text-gray-900">Task List</h2>
+      <p class="mt-2 text-sm text-gray-600">Manage and track your tasks</p>
     </div>
-  </body>
-</html>
+
+    {% if tasks %}
+      <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {% for task in tasks %}
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">{{ task.title }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">{{ task.get_status_display }}</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">{{ task.get_priority_display }}</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {% if task.project %}
+                    {{ task.project.name }}
+                  {% else %}
+                    <span class="text-gray-400">—</span>
+                  {% endif %}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <a href="{% url 'task-details' task.id %}" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">View Details</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="bg-white shadow-md rounded-lg p-12 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No tasks found</h3>
+        <p class="mt-1 text-sm text-gray-500">Get started by creating a new task.</p>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
