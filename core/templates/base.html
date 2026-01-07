@@ -11,7 +11,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{% static 'css/output.css' %}" />
   </head>
-  <body class="font-sans bg-gray-100 min-h-screen flex flex-col">
+  <body class="font-sans bg-gray-100 min-h-screen h-full text-gray-900 flex flex-col antialiased">
     {% if request.user.is_authenticated %}
       {% include 'logged-nav.html' %}
     {% else %}

@@ -20,6 +20,9 @@ from users.views import is_admin
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic.base import ContextMixin
 from django.views.generic import ListView, DetailView, UpdateView, CreateView
+from django.views.generic import DeleteView
+from django.urls import reverse_lazy
+from django.db.models import ProtectedError
 
 
 # create Based View reuse example
@@ -88,9 +91,60 @@ def manager_dashboard(request):
     return render(request, "dashboard/manager-dashboard.html", context)
 
 
+# TODO: Implement Manager Dashboard Into Class Based View
+manager_dashboard_decorators = [
+    login_required,
+    user_passes_test(is_manager, login_url="no-permission"),
+]
+
+
+@method_decorator(manager_dashboard_decorators, name="dispatch")
+class ManagerDashboardView(ListView):
+    template_name = "dashboard/manager-dashboard.html"
+    model = Task
+    context_object_name = "tasks"
+
+    def get_queryset(self):
+        task_type = self.request.GET.get("type")
+        base_query = Task.objects.select_related("detail").prefetch_related(
+            "assigned_to"
+        )
+
+        if task_type == "completed":
+            return base_query.filter(status="COMPLETED")
+        elif task_type == "pending":
+            return base_query.filter(status="PENDING")
+        elif type == "in-progress":
+            return base_query.filter(status="IN_PROGRESS")
+        return base_query.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["counts"] = Task.objects.aggregate(
+            total_tasks=Count("id"),
+            pending_task=Count("id", filter=Q(status="PENDING")),
+            completed_tasks=Count("id", filter=Q(status="COMPLETED")),
+            in_progress_tasks=Count("id", filter=Q(status="IN_PROGRESS")),
+        )
+        return context
+
+
 @user_passes_test(is_employee, login_url="no-permission")
 def employee_dashboard(request):
     return render(request, "dashboard/employee-dashboard.html")
+
+
+# TODO: Implement Employee Dashboard Into Class Based View
+employee_dashboard_decorators = [
+    user_passes_test(is_employee, login_url="no-permission"),
+]
+
+
+@method_decorator(employee_dashboard_decorators, name="dispatch")
+class EmployeeDashboardView(ListView):
+    model = Task
+    template_name = "dashboard/employee-dashboard.html"
+    context_object_name = "tasks"
 
 
 @login_required
@@ -336,6 +390,22 @@ def delete_task(request, id):
     return redirect("manager-dashboard")
 
 
+# TODO: Implement Delete Task Into Class Based View
+class DeleteTaskView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    model = Task
+    permission_required = "tasks.delete_task"
+    success_url = reverse_lazy("manager-dashboard")
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            response = super().delete(request, *args, **kwargs)
+            messages.success(request, "Task Deleted Successfully")
+            return response
+        except ProtectedError:
+            messages.error(request, "This task cannot be deleted.")
+            return redirect(self.get_success_url())
+
+
 @login_required
 @permission_required("tasks.view_task", raise_exception=True)
 def view_task(request):
@@ -382,17 +452,17 @@ def view_task(request):
     return render(request, "show-task.html", {"projects": projects})
 
 
+# TODO: Implement ViewTask Into Class Based View
 class ViewTaskListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
-    """Class Based View Example for View Task"""
-
     permission_required = "tasks.view_task"
     login_url = "sign-in"
+
+    model = Task
     template_name = "show-task.html"
-    model = Project
-    context_object_name = "projects"
+    context_object_name = "tasks"
 
     def get_queryset(self):
-        return Project.objects.annotate(cnt=Count("task")).order_by("cnt")
+        return Task.objects.select_related("project").order_by("-created_at")
 
 
 @login_required
@@ -438,9 +508,9 @@ class TaskDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
 @login_required
 def dashboard(request):
     if is_manager(request.user):
-        redirect("manager-dashboard")
+        return redirect("manager-dashboard")
     elif is_employee(request.user):
-        redirect("user-dashboard")
+        return redirect("user-dashboard")
     elif is_admin(request.user):
         return redirect("admin-dashboard")
 
